@@ -8,8 +8,11 @@ import com.batch.job.readers.CustomerApiReader;
 import com.batch.job.readers.CustomerVigiItemReader;
 import com.batch.job.writers.AccountItemWriter;
 import com.batch.job.writers.CustomerItemWriter;
+import com.batch.job.writers.csv.AccountVigiCSVWriter;
+import com.batch.job.writers.csv.CustomerVigiCSVWriter;
 import com.batch.model.CustomerVigiDTO;
 import com.batch.utils.JobCompletionNotificationListener;
+import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -38,6 +41,11 @@ public class BatchConfig {
     private final AccountVigiItemProcessor accountProcessor;
     private final AccountItemWriter accountWriter;
     private final JobCompletionNotificationListener listener;
+    private final CustomerVigiCSVWriter customerVigiCSVWriter;
+    private final AccountVigiCSVWriter accountVigiCSVWriter;
+    private final EntityManagerFactory entityManagerFactory;
+    private final CSVReaderConfig csvReaderConfig;
+
 
     @Bean
     @StepScope
@@ -58,10 +66,28 @@ public class BatchConfig {
     @Bean
     public Step fetchAndSaveAccountsStep() {
         return new StepBuilder("fetchAndSaveAccountsStep", jobRepository)
-                .<CustomerVigi, AccountVigi>chunk(10,transactionManager)
+                .<CustomerVigi, AccountVigi>chunk(10, transactionManager)
                 .reader(customerItemReaderImp())
                 .processor(accountProcessor)
                 .writer(accountWriter)
+                .build();
+    }
+
+    @Bean
+    public Step writeAccountsToCsvStep() {
+        return new StepBuilder("writeAccountsToCsvStep", jobRepository)
+                .<AccountVigi, AccountVigi>chunk(10, transactionManager)
+                .reader(csvReaderConfig.accountVigiReader(entityManagerFactory))
+                .writer(accountVigiCSVWriter)
+                .build();
+    }
+
+    @Bean
+    public Step writeCustomersToCsvStep() {
+        return new StepBuilder("writeCustomersToCsvStep", jobRepository)
+                .<CustomerVigi, CustomerVigi>chunk(10, transactionManager)
+                .reader(csvReaderConfig.customerVigiReader(entityManagerFactory))
+                .writer(customerVigiCSVWriter)
                 .build();
     }
 
@@ -72,6 +98,8 @@ public class BatchConfig {
                 .listener(listener)
                 .start(fetchAndSaveCustomerStep())
                 .next(fetchAndSaveAccountsStep())
+                .next(writeAccountsToCsvStep())
+                .next(writeCustomersToCsvStep())
                 .build();
     }
 }
