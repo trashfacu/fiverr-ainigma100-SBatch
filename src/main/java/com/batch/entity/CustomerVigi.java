@@ -3,6 +3,8 @@ package com.batch.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name = "CUSTOMER_VIGI")
@@ -15,5 +17,6 @@ public class CustomerVigi {
     private String email;
     private String countryCode;
 
-    
+    @Transient
+    private LocalDateTime executionDate;
 }
