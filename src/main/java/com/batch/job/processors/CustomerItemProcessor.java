@@ -1,6 +1,7 @@
 package com.batch.job.processors;
 
 import com.batch.entity.CustomerVigi;
+import com.batch.exceptions.InvalidRecordException;
 import com.batch.model.CustomerVigiDTO;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
@@ -16,6 +17,10 @@ public class CustomerItemProcessor implements ItemProcessor<CustomerVigiDTO, Cus
 
     @Override
     public CustomerVigi process(CustomerVigiDTO item) throws Exception {
+        if (item.getName() == null || item.getName().isEmpty() || item.getName().toLowerCase().startsWith("a")) {
+            throw new InvalidRecordException();
+        }
+
         CustomerVigi customer = new CustomerVigi();
         customer.setName(item.getName());
         customer.setEmail(item.getEmail());

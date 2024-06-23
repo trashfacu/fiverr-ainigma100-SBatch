@@ -2,6 +2,9 @@ package com.batch.configuration;
 
 import com.batch.entity.AccountVigi;
 import com.batch.entity.CustomerVigi;
+import com.batch.job.listeners.CustomSkipListener;
+import com.batch.job.listeners.CustomStepExecutionListener;
+import com.batch.job.listeners.JobCompletionNotificationListener;
 import com.batch.job.processors.AccountVigiItemProcessor;
 import com.batch.job.processors.CustomerItemProcessor;
 import com.batch.job.readers.CustomerApiReader;
@@ -11,12 +14,11 @@ import com.batch.job.writers.CustomerItemWriter;
 import com.batch.job.writers.csv.AccountVigiCSVWriter;
 import com.batch.job.writers.csv.CustomerVigiCSVWriter;
 import com.batch.model.CustomerVigiDTO;
-import com.batch.utils.JobCompletionNotificationListener;
+import com.batch.utils.StepDecider;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -27,8 +29,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.security.InvalidAlgorithmParameterException;
+
 @Configuration
-@EnableBatchProcessing
 @RequiredArgsConstructor
 public class BatchConfig {
 
@@ -45,6 +48,9 @@ public class BatchConfig {
     private final AccountVigiCSVWriter accountVigiCSVWriter;
     private final EntityManagerFactory entityManagerFactory;
     private final CSVReaderConfig csvReaderConfig;
+    private final CustomSkipListener skipListener;
+    private final CustomStepExecutionListener stepExecutionListener;
+    private final StepDecider decider;
 
 
     @Bean
@@ -60,6 +66,11 @@ public class BatchConfig {
                 .reader(customerApiReader)
                 .processor(customerProcessor)
                 .writer(customerWriter)
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(InvalidAlgorithmParameterException.class)
+                .listener(skipListener)
+                .listener(stepExecutionListener)
                 .build();
     }
 
@@ -70,6 +81,11 @@ public class BatchConfig {
                 .reader(customerItemReaderImp())
                 .processor(accountProcessor)
                 .writer(accountWriter)
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(InvalidAlgorithmParameterException.class)
+                .listener(skipListener)
+                .listener(stepExecutionListener)
                 .build();
     }
 
@@ -79,6 +95,11 @@ public class BatchConfig {
                 .<AccountVigi, AccountVigi>chunk(10, transactionManager)
                 .reader(csvReaderConfig.accountVigiReader(entityManagerFactory))
                 .writer(accountVigiCSVWriter)
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(InvalidAlgorithmParameterException.class)
+                .listener(skipListener)
+                .listener(stepExecutionListener)
                 .build();
     }
 
@@ -88,6 +109,11 @@ public class BatchConfig {
                 .<CustomerVigi, CustomerVigi>chunk(10, transactionManager)
                 .reader(csvReaderConfig.customerVigiReader(entityManagerFactory))
                 .writer(customerVigiCSVWriter)
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(InvalidAlgorithmParameterException.class)
+                .listener(skipListener)
+                .listener(stepExecutionListener)
                 .build();
     }
 
@@ -96,10 +122,11 @@ public class BatchConfig {
         return new JobBuilder("processJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .start(fetchAndSaveCustomerStep())
-                .next(fetchAndSaveAccountsStep())
-                .next(writeAccountsToCsvStep())
-                .next(writeCustomersToCsvStep())
-                .build();
+                .start(decider)
+                .from(decider).on("fetchAndSaveCustomerStep").to(fetchAndSaveCustomerStep())
+                .from(decider).on("fetchAndSaveAccountsStep").to(fetchAndSaveAccountsStep())
+                .from(decider).on("writeAccountsToCsvStep").to(writeAccountsToCsvStep())
+                .from(decider).on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())
+                .end().build();
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequiredArgsConstructor
 public class BatchController {
@@ -23,10 +25,12 @@ public class BatchController {
     private final Job processJob;
 
     @PostMapping("/start")
-    public ResponseEntity<String> startBatch(@RequestParam String country) {
+    public ResponseEntity<String> startBatch(@RequestParam String country, @RequestParam(required = false, defaultValue = "fetchAndSaveCustomerStep") String startStep) {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("country", country)
+                    .addString("startStep", startStep)
+                    .addString("run.id", LocalDateTime.now().toString())
                     .toJobParameters();
             jobLauncher.run(processJob, jobParameters);
             return new ResponseEntity<>("Job started successfully", HttpStatus.OK);

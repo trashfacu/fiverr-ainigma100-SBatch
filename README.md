@@ -1,63 +1,96 @@
-## Batch Processing Application
+# Batch Processing Application
 
-### Overview
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Components](#components)
+3. [Setup and Usage](#setup-and-usage)
+4. [Monitoring and Troubleshooting](#monitoring-and-troubleshooting)
+5. [Notes](#notes)
+
+---
+
+## Overview <a name="overview"></a>
 
 This Spring Batch application demonstrates the process of fetching customer data from an API, processing it, and then storing it in a database. Additionally, it includes steps to fetch account data associated with customers, write both customer and account data to CSV files, and handle notifications upon job completion.
 
-### Components
+---
 
-1. **Entities**:
-    - `AccountVigi`: Represents an account with attributes such as ID, account number, balance, and a reference to `CustomerVigi`.
-    - `CustomerVigi`: Represents a customer with attributes like ID, name, email, and country code.
+## Components <a name="components"></a>
 
-2. **DTOs**:
-    - `AccountVigiDTO`: Data Transfer Object for transferring account-related data.
-    - `CustomerVigiDTO`: Data Transfer Object for transferring customer-related data.
+### Entities
 
-3. **Readers**:
-    - `CustomerApiReader`: Reads customer data from a REST API using `WebClient`.
-    - `CustomerVigiItemReader`: Reads customer data from a database using Spring Data `RepositoryItemReader`.
+- **AccountVigi**: Represents an account with attributes such as ID, account number, balance, and a reference to `CustomerVigi`.
+- **CustomerVigi**: Represents a customer with attributes like ID, name, email, and country code.
+- **InvalidRecord**: Represents an invalid record with attributes like recordType, details, and timestamp.
 
-4. **Processors**:
-    - `AccountVigiItemProcessor`: Processes `CustomerVigi` objects to create `AccountVigi` entities, fetching account data from an API using `WebClient`.
-    - `CustomerItemProcessor`: Processes `CustomerVigiDTO` objects to create `CustomerVigi` entities.
+### DTOs
 
-5. **Writers**:
-    - `AccountItemWriter`: Writes `AccountVigi` entities to the database.
-    - `CustomerItemWriter`: Writes `CustomerVigi` entities to the database.
-    - CSV Writers (`AccountVigiCSVWriter` and `CustomerVigiCSVWriter`): Writes `AccountVigi` and `CustomerVigi` entities respectively to CSV files.
+- **AccountVigiDTO**: Data Transfer Object for transferring account-related data.
+- **CustomerVigiDTO**: Data Transfer Object for transferring customer-related data.
 
-6. **Repositories**:
-    - `AccountVigiRepository`: Spring Data repository for `AccountVigi` entities.
-    - `CustomerVigiRepository`: Spring Data repository for `CustomerVigi` entities.
+### Readers
 
-7. **Configuration**:
-    - `BatchConfig`: Configures Spring Batch jobs and steps. Includes item readers, processors, writers, and listeners (`JobCompletionNotificationListener`).
-    - `CSVReaderConfig`: Configures Spring Batch item readers for reading `AccountVigi` and `CustomerVigi` entities from the database.
+- **CustomerApiReader**: Reads customer data from a REST API using `WebClient`.
+- **CustomerVigiItemReader**: Reads customer data from a database using Spring Data `RepositoryItemReader`.
 
-8. **Controllers**:
-    - `BatchController`: REST controller to trigger the batch job with parameters.
+### Processors
 
-9. **Utilities**:
-    - `WebClientConfig`: Configures a `WebClient` bean to communicate with external APIs.
+- **AccountVigiItemProcessor**: Processes `CustomerVigi` objects to create `AccountVigi` entities, fetching account data from an API using `WebClient`.
+- **CustomerItemProcessor**: Processes `CustomerVigiDTO` objects to create `CustomerVigi` entities.
 
-### How to Use
+### Writers
 
-1. **Setup**:
-    - Ensure Java and Maven are installed.
-    - Clone the repository and import into your IDE.
-    - Configure `application.properties` or `application.yml` for database and other settings.
+- **AccountItemWriter**: Writes `AccountVigi` entities to the database.
+- **CustomerItemWriter**: Writes `CustomerVigi` entities to the database.
+- **CSV Writers**: Writes `AccountVigi` and `CustomerVigi` entities respectively to CSV files (`AccountVigiCSVWriter`, `CustomerVigiCSVWriter`).
 
-2. **Running the Application**:
-    - Run the Spring Boot application.
-    - Use a tool like Postman or cURL to send a POST request to `/start` endpoint with `country` parameter to start the batch job.
+### Repositories
 
-3. **Monitoring**:
-    - Monitor logs for job status (`JobCompletionNotificationListener`) and exceptions.
-    - Check database tables and CSV files (`OBS_OUT_4.csv` and `OBS_OUT_5.csv`) for stored and exported data respectively.
+- **AccountVigiRepository**: Spring Data repository for `AccountVigi` entities.
+- **CustomerVigiRepository**: Spring Data repository for `CustomerVigi` entities.
+- **InvalidRecordRepository**: Spring Data repository for `InvalidRecord` entities.
 
-### Notes
+### Configuration
 
-- Ensure database connection and API availability before starting the job.
-- Adjust batch sizes (`chunk` sizes) and configurations in `BatchConfig` as per performance and data volume requirements.
-- Extend and customize processors, writers, and readers based on specific business logic and data sources.
+- **BatchConfig**: Configures Spring Batch jobs and steps. Includes item readers, processors, writers, and listeners (`JobCompletionNotificationListener`, `CustomSkipListener`, `CustomStepExecutionListener`).
+- **CSVReaderConfig**: Configures Spring Batch item readers for reading `AccountVigi` and `CustomerVigi` entities from the database.
+- **StepDecider**: Decides which step to start based on job parameters.
+
+### Controllers
+
+- **BatchController**: REST controller to trigger the batch job with parameters.
+
+---
+
+## Setup and Usage <a name="setup-and-usage"></a>
+
+### Prerequisites
+
+- Java and Maven installed.
+- Database configured in `application.properties` or `application.yml`.
+
+### Running the Application
+
+1. Clone the repository and import it into your IDE.
+2. Build and run the Spring Boot application.
+3. Use a tool like Postman or cURL to send a POST request to start the batch job.
+
+### Interacting with the Application
+
+#### Starting a Batch Job
+
+Send a POST request to `/start` endpoint with the following parameters:
+- `country`: Specify the country for filtering customer data.
+- `startStep` (optional): Specify the initial step to start the job.
+
+Example using Postman:
+- **URL**: `http://localhost:8080/start`
+- **Method**: POST
+- **Headers**: Content-Type: application/json
+- **Body**: Raw JSON
+  ```json
+  {
+    "country": "US",
+    "startStep": "fetchAndSaveCustomerStep"
+  }
