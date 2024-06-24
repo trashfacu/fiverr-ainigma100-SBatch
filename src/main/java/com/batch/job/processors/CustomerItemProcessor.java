@@ -17,7 +17,7 @@ public class CustomerItemProcessor implements ItemProcessor<CustomerVigiDTO, Cus
 
     @Override
     public CustomerVigi process(CustomerVigiDTO item) throws Exception {
-        if (item.getName() == null || item.getName().isEmpty() || item.getName().toLowerCase().startsWith("a")) {
+        if (item.getName() == null || item.getName().isEmpty() || item.getName().toLowerCase().startsWith("c")) {
             throw new InvalidRecordException();
         }
 

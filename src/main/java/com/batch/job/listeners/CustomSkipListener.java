@@ -5,6 +5,7 @@ import com.batch.repository.InvalidRecordRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.SkipListener;
+import org.springframework.batch.core.scope.context.StepSynchronizationManager;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,14 @@ public class CustomSkipListener implements SkipListener<Object, Object> {
         invalidRecord.setRecordType(item.getClass().getSimpleName());
         invalidRecord.setDetails(item.toString());
         invalidRecord.setTimeStamp(LocalDateTime.now());
+        invalidRecord.setExceptionType(t.getClass().getSimpleName());
+        invalidRecord.setExceptionMessage("Skipped due to name starting with c");
+        invalidRecord.setStepName(getStepName());
         invalidRecordRepository.save(invalidRecord);
+    }
+
+    // Helper method to get the current step name from the contextx
+    private String getStepName() {
+        return StepSynchronizationManager.getContext() != null ? StepSynchronizationManager.getContext().getStepName() : "Unknown Step";
     }
 }

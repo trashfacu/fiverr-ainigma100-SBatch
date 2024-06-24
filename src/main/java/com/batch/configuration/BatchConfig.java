@@ -2,6 +2,7 @@ package com.batch.configuration;
 
 import com.batch.entity.AccountVigi;
 import com.batch.entity.CustomerVigi;
+import com.batch.exceptions.InvalidRecordException;
 import com.batch.job.listeners.CustomSkipListener;
 import com.batch.job.listeners.CustomStepExecutionListener;
 import com.batch.job.listeners.JobCompletionNotificationListener;
@@ -21,6 +22,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -28,8 +30,6 @@ import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import java.security.InvalidAlgorithmParameterException;
 
 @Configuration
 @RequiredArgsConstructor
@@ -60,6 +60,11 @@ public class BatchConfig {
     }
 
     @Bean
+    public JobExecutionDecider decider() {
+        return new StepDecider();
+    }
+
+    @Bean
     public Step fetchAndSaveCustomerStep() {
         return new StepBuilder("fetchAndSaveCustomersStep", jobRepository)
                 .<CustomerVigiDTO, CustomerVigi>chunk(10, transactionManager)
@@ -67,9 +72,8 @@ public class BatchConfig {
                 .processor(customerProcessor)
                 .writer(customerWriter)
                 .faultTolerant()
-                .skipLimit(10)
-                .skip(InvalidAlgorithmParameterException.class)
-                .listener(skipListener)
+                .skip(InvalidRecordException.class)
+                .skipLimit(100).listener(skipListener)
                 .listener(stepExecutionListener)
                 .build();
     }
@@ -82,9 +86,8 @@ public class BatchConfig {
                 .processor(accountProcessor)
                 .writer(accountWriter)
                 .faultTolerant()
-                .skipLimit(10)
-                .skip(InvalidAlgorithmParameterException.class)
-                .listener(skipListener)
+                .skip(InvalidRecordException.class)
+                .skipLimit(100).listener(skipListener)
                 .listener(stepExecutionListener)
                 .build();
     }
@@ -96,9 +99,8 @@ public class BatchConfig {
                 .reader(csvReaderConfig.accountVigiReader(entityManagerFactory))
                 .writer(accountVigiCSVWriter)
                 .faultTolerant()
-                .skipLimit(10)
-                .skip(InvalidAlgorithmParameterException.class)
-                .listener(skipListener)
+                .skip(InvalidRecordException.class)
+                .skipLimit(100).listener(skipListener)
                 .listener(stepExecutionListener)
                 .build();
     }
@@ -110,8 +112,7 @@ public class BatchConfig {
                 .reader(csvReaderConfig.customerVigiReader(entityManagerFactory))
                 .writer(customerVigiCSVWriter)
                 .faultTolerant()
-                .skipLimit(10)
-                .skip(InvalidAlgorithmParameterException.class)
+                .skipLimit(100).skip(InvalidRecordException.class)
                 .listener(skipListener)
                 .listener(stepExecutionListener)
                 .build();
@@ -122,11 +123,21 @@ public class BatchConfig {
         return new JobBuilder("processJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .start(decider)
-                .from(decider).on("fetchAndSaveCustomerStep").to(fetchAndSaveCustomerStep())
-                .from(decider).on("fetchAndSaveAccountsStep").to(fetchAndSaveAccountsStep())
-                .from(decider).on("writeAccountsToCsvStep").to(writeAccountsToCsvStep())
-                .from(decider).on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())
-                .end().build();
+                .start(decider())
+                .on("fetchAndSaveCustomerStep").to(fetchAndSaveCustomerStep())
+                .next(fetchAndSaveAccountsStep())
+                .next(writeAccountsToCsvStep())
+                .next(writeCustomersToCsvStep())
+                .from(decider())
+                .on("fetchAndSaveAccountsStep").to(fetchAndSaveAccountsStep())
+                .next(writeAccountsToCsvStep())
+                .next(writeCustomersToCsvStep())
+                .from(decider())
+                .on("writeAccountsToCsvStep").to(writeAccountsToCsvStep())
+                .next(writeCustomersToCsvStep())
+                .from(decider())
+                .on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())
+                .end()
+                .build();
     }
 }

@@ -20,8 +20,12 @@ CREATE TABLE CUSTOMER_VIGI
 
 CREATE TABLE INVALID_RECORDS
 (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    record_type    VARCHAR(255),
-    record_content VARCHAR(255),
-    error_message  VARCHAR(255)
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    record_type       VARCHAR(255),
+    details           VARCHAR(255),
+    reason            VARCHAR(255),
+    exception_type    VARCHAR(255),
+    exception_message VARCHAR(255),
+    step_name         VARCHAR(255),
+    time_stamp        TIMESTAMP
 );

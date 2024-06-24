@@ -11,8 +11,13 @@ public class StepDecider implements JobExecutionDecider {
 
     @Override
     public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
-        String stepName = jobExecution.getJobParameters().getString("startStep");
+        String startStep = jobExecution.getJobParameters().getString("startStep");
 
-        return new FlowExecutionStatus(stepName != null ? stepName : "fetchAndSaveCustomerStep");
+        if (startStep != null && !startStep.isEmpty()) {
+            return new FlowExecutionStatus(startStep);
+        } else {
+            return new FlowExecutionStatus("fetchAndSaveCustomerStep");
+        }
+
     }
 }
