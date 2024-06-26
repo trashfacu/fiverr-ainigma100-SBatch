@@ -1,6 +1,6 @@
 package com.batch.job.writers.csv;
 
-import com.batch.entity.AccountVigi;
+import com.batch.entity.AccountErm;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
@@ -12,22 +12,21 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
-public class AccountVigiCSVWriter implements ItemWriter<AccountVigi> {
+public class AccountErmCSVWriter implements ItemWriter<AccountErm> {
 
-    private final FlatFileItemWriter<AccountVigi> writer;
+    private final FlatFileItemWriter<AccountErm> writer;
 
 
-    public AccountVigiCSVWriter() {
-        this.writer = new FlatFileItemWriterBuilder<AccountVigi>()
-                .name("accountVigiCsvWriter")
-                .resource(new FileSystemResource("OBS_OUT_4.csv"))
+    public AccountErmCSVWriter() {
+        this.writer = new FlatFileItemWriterBuilder<AccountErm>()
+                .name("AccountErmCSVWriter")
+                .resource(new FileSystemResource("ERM_OUT_4.csv"))
                 .delimited()
                 .delimiter(",")
-                .names(new String[]{"id", "customerName", "balance", "executionDate"})
-                .lineAggregator(new DelimitedLineAggregator<AccountVigi>() {{
+                .names("id", "customerName", "balance", "executionDate")
+                .lineAggregator(new DelimitedLineAggregator<AccountErm>() {{
                     setFieldExtractor(new BeanWrapperFieldExtractor<>() {{
                         setNames(new String[]{"id", "customer.name", "balance","executionDate"});
                     }});
@@ -38,8 +37,8 @@ public class AccountVigiCSVWriter implements ItemWriter<AccountVigi> {
     }
 
     @Override
-    public void write(Chunk<? extends AccountVigi> items) throws Exception {
-        for (AccountVigi item : items){
+    public void write(Chunk<? extends AccountErm> items) throws Exception {
+        for (AccountErm item : items){
             item.setExecutionDate(LocalDateTime.now());
         }
         writer.write(items);

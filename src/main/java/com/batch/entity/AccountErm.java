@@ -8,15 +8,15 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "ACCOUNT_VIGI")
-public class AccountVigi {
+@Table(name = "ACCOUNT_ERM")
+public class AccountErm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private CustomerVigi customer;
+    private CustomerErm customer;
     private String accountNumber;
     private BigDecimal balance;
 

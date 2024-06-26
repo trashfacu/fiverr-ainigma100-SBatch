@@ -1,7 +1,7 @@
 package com.batch.configuration;
 
-import com.batch.entity.AccountVigi;
-import com.batch.entity.CustomerVigi;
+import com.batch.entity.AccountErm;
+import com.batch.entity.CustomerErm;
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
@@ -13,21 +13,21 @@ import org.springframework.context.annotation.Configuration;
 public class CSVReaderConfig {
 
     @Bean
-    public ItemReader<CustomerVigi> customerVigiReader(EntityManagerFactory entityManagerFactory) {
-        return new JpaPagingItemReaderBuilder<CustomerVigi>()
-                .name("customerVigiReader")
+    public ItemReader<CustomerErm> customerErmReader(EntityManagerFactory entityManagerFactory) {
+        return new JpaPagingItemReaderBuilder<CustomerErm>()
+                .name("customerErmReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT c FROM CustomerVigi c")
+                .queryString("SELECT c FROM CustomerErm c")
                 .pageSize(10)
                 .build();
     }
 
     @Bean
-    public ItemReader<AccountVigi> accountVigiReader(EntityManagerFactory entityManagerFactory) {
-        return new JpaPagingItemReaderBuilder<AccountVigi>()
-                .name("accountVigiReader")
+    public ItemReader<AccountErm> accountErmReader(EntityManagerFactory entityManagerFactory) {
+        return new JpaPagingItemReaderBuilder<AccountErm>()
+                .name("accountErmReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("SELECT a FROM AccountVigi a")
+                .queryString("SELECT a FROM AccountErm a")
                 .pageSize(10)
                 .build();
     }

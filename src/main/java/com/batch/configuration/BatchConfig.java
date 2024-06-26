@@ -1,20 +1,20 @@
 package com.batch.configuration;
 
-import com.batch.entity.AccountVigi;
-import com.batch.entity.CustomerVigi;
+import com.batch.entity.AccountErm;
+import com.batch.entity.CustomerErm;
 import com.batch.exceptions.InvalidRecordException;
 import com.batch.job.listeners.CustomSkipListener;
 import com.batch.job.listeners.CustomStepExecutionListener;
 import com.batch.job.listeners.JobCompletionNotificationListener;
-import com.batch.job.processors.AccountVigiItemProcessor;
-import com.batch.job.processors.CustomerItemProcessor;
+import com.batch.job.processors.AccountErmItemProcessor;
+import com.batch.job.processors.CustomerErmItemProcessor;
 import com.batch.job.readers.CustomerApiReader;
-import com.batch.job.readers.CustomerVigiItemReader;
+import com.batch.job.readers.CustomerErmItemReader;
 import com.batch.job.writers.AccountItemWriter;
 import com.batch.job.writers.CustomerItemWriter;
-import com.batch.job.writers.csv.AccountVigiCSVWriter;
-import com.batch.job.writers.csv.CustomerVigiCSVWriter;
-import com.batch.model.CustomerVigiDTO;
+import com.batch.job.writers.csv.AccountErmCSVWriter;
+import com.batch.job.writers.csv.CustomerErmCSVWriter;
+import com.batch.model.CustomerErmDTO;
 import com.batch.utils.StepDecider;
 import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
@@ -38,14 +38,14 @@ public class BatchConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final CustomerApiReader customerApiReader;
-    private final CustomerItemProcessor customerProcessor;
+    private final CustomerErmItemProcessor customerProcessor;
     private final CustomerItemWriter customerWriter;
-    private final CustomerVigiItemReader customerItemReader;
-    private final AccountVigiItemProcessor accountProcessor;
+    private final CustomerErmItemReader customerItemReader;
+    private final AccountErmItemProcessor accountProcessor;
     private final AccountItemWriter accountWriter;
     private final JobCompletionNotificationListener listener;
-    private final CustomerVigiCSVWriter customerVigiCSVWriter;
-    private final AccountVigiCSVWriter accountVigiCSVWriter;
+    private final CustomerErmCSVWriter customerVigiCSVWriter;
+    private final AccountErmCSVWriter accountVigiCSVWriter;
     private final EntityManagerFactory entityManagerFactory;
     private final CSVReaderConfig csvReaderConfig;
     private final CustomSkipListener skipListener;
@@ -55,7 +55,7 @@ public class BatchConfig {
 
     @Bean
     @StepScope
-    public RepositoryItemReader<CustomerVigi> customerItemReaderImp() {
+    public RepositoryItemReader<CustomerErm> customerItemReaderImp() {
         return customerItemReader.customerItemReader();
     }
 
@@ -67,7 +67,7 @@ public class BatchConfig {
     @Bean
     public Step fetchAndSaveCustomerStep() {
         return new StepBuilder("fetchAndSaveCustomersStep", jobRepository)
-                .<CustomerVigiDTO, CustomerVigi>chunk(10, transactionManager)
+                .<CustomerErmDTO, CustomerErm>chunk(10, transactionManager)
                 .reader(customerApiReader)
                 .processor(customerProcessor)
                 .writer(customerWriter)
@@ -81,7 +81,7 @@ public class BatchConfig {
     @Bean
     public Step fetchAndSaveAccountsStep() {
         return new StepBuilder("fetchAndSaveAccountsStep", jobRepository)
-                .<CustomerVigi, AccountVigi>chunk(10, transactionManager)
+                .<CustomerErm, AccountErm>chunk(10, transactionManager)
                 .reader(customerItemReaderImp())
                 .processor(accountProcessor)
                 .writer(accountWriter)
@@ -95,8 +95,8 @@ public class BatchConfig {
     @Bean
     public Step writeAccountsToCsvStep() {
         return new StepBuilder("writeAccountsToCsvStep", jobRepository)
-                .<AccountVigi, AccountVigi>chunk(10, transactionManager)
-                .reader(csvReaderConfig.accountVigiReader(entityManagerFactory))
+                .<AccountErm, AccountErm>chunk(10, transactionManager)
+                .reader(csvReaderConfig.accountErmReader(entityManagerFactory))
                 .writer(accountVigiCSVWriter)
                 .faultTolerant()
                 .skip(InvalidRecordException.class)
@@ -108,8 +108,8 @@ public class BatchConfig {
     @Bean
     public Step writeCustomersToCsvStep() {
         return new StepBuilder("writeCustomersToCsvStep", jobRepository)
-                .<CustomerVigi, CustomerVigi>chunk(10, transactionManager)
-                .reader(csvReaderConfig.customerVigiReader(entityManagerFactory))
+                .<CustomerErm, CustomerErm>chunk(10, transactionManager)
+                .reader(csvReaderConfig.customerErmReader(entityManagerFactory))
                 .writer(customerVigiCSVWriter)
                 .faultTolerant()
                 .skipLimit(100).skip(InvalidRecordException.class)

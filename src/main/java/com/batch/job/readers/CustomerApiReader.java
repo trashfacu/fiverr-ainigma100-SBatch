@@ -1,29 +1,29 @@
 package com.batch.job.readers;
 
-import com.batch.model.CustomerVigiDTO;
+import com.batch.model.CustomerErmDTO;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @Component
-public class CustomerApiReader implements ItemReader<CustomerVigiDTO> {
+public class CustomerApiReader implements ItemReader<CustomerErmDTO> {
 
-    private final WebClient webClient;
+    private final RestTemplate restTemplate;
     private int nextCustomerIndex;
-    private CustomerVigiDTO[] customerData;
+    private CustomerErmDTO[] customerData;
 
-    public CustomerApiReader(WebClient webClient) {
-        this.webClient = webClient;
+    public CustomerApiReader(RestTemplate webClient) {
+        this.restTemplate = webClient;
         this.nextCustomerIndex = 0;
     }
 
     @Override
-    public CustomerVigiDTO read() throws Exception {
+    public CustomerErmDTO read() throws Exception {
         if (customerDataIsNotInitialized()) {
             customerData = fetchCustomerDataFromAPI();
         }
 
-        CustomerVigiDTO nextCustomer = null;
+        CustomerErmDTO nextCustomer = null;
 
         if (nextCustomerIndex < customerData.length) {
             nextCustomer = customerData[nextCustomerIndex];
@@ -37,11 +37,8 @@ public class CustomerApiReader implements ItemReader<CustomerVigiDTO> {
         return this.customerData == null;
     }
 
-    private CustomerVigiDTO[] fetchCustomerDataFromAPI() {
-        return webClient.get()
-                .uri("/users")
-                .retrieve()
-                .bodyToMono(CustomerVigiDTO[].class)
-                .block();
+    private CustomerErmDTO[] fetchCustomerDataFromAPI() {
+        return restTemplate.getForObject("https://jsonplaceholder.typicode.com/users",
+                CustomerErmDTO[].class);
     }
 }

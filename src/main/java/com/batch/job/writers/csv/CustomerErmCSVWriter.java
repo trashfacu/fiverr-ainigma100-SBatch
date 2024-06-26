@@ -1,6 +1,6 @@
 package com.batch.job.writers.csv;
 
-import com.batch.entity.CustomerVigi;
+import com.batch.entity.CustomerErm;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
@@ -12,22 +12,21 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
-public class CustomerVigiCSVWriter implements ItemWriter<CustomerVigi> {
+public class CustomerErmCSVWriter implements ItemWriter<CustomerErm> {
 
-    private final FlatFileItemWriter<CustomerVigi> writer;
+    private final FlatFileItemWriter<CustomerErm> writer;
 
 
-    public CustomerVigiCSVWriter() {
-        this.writer = new FlatFileItemWriterBuilder<CustomerVigi>()
-                .name("customerVigiCsvWriter")
-                .resource(new FileSystemResource("OBS_OUT_5.csv"))
+    public CustomerErmCSVWriter() {
+        this.writer = new FlatFileItemWriterBuilder<CustomerErm>()
+                .name("CustomerErmCSVWriter")
+                .resource(new FileSystemResource("ERM_OUT_5.csv"))
                 .delimited()
                 .delimiter(",")
-                .names(new String[]{"id", "name", "email", "executionDate"})
-                .lineAggregator(new DelimitedLineAggregator<CustomerVigi>() {{
+                .names("id", "name", "email", "executionDate")
+                .lineAggregator(new DelimitedLineAggregator<CustomerErm>() {{
                     setFieldExtractor(new BeanWrapperFieldExtractor<>() {{
                         setNames(new String[]{"id", "name", "email","executionDate"});
                     }});
@@ -39,8 +38,8 @@ public class CustomerVigiCSVWriter implements ItemWriter<CustomerVigi> {
 
 
     @Override
-    public void write(Chunk<? extends CustomerVigi> items) throws Exception {
-        for (CustomerVigi item : items){
+    public void write(Chunk<? extends CustomerErm> items) throws Exception {
+        for (CustomerErm item : items){
             item.setExecutionDate(LocalDateTime.now());
         }
         writer.write(items);

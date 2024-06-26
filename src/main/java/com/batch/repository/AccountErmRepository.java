@@ -1,9 +1,9 @@
 package com.batch.repository;
 
-import com.batch.entity.CustomerVigi;
+import com.batch.entity.AccountErm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CustomerVigiRepository extends JpaRepository<CustomerVigi, Long> {
+public interface AccountErmRepository extends JpaRepository<AccountErm, Long> {
 }

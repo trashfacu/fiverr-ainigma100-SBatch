@@ -1,7 +1,7 @@
 package com.batch.job.writers;
 
-import com.batch.entity.AccountVigi;
-import com.batch.repository.AccountVigiRepository;
+import com.batch.entity.AccountErm;
+import com.batch.repository.AccountErmRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AccountItemWriter implements ItemWriter<AccountVigi> {
+public class AccountItemWriter implements ItemWriter<AccountErm> {
 
-    private final AccountVigiRepository accountVigiRepository;
+    private final AccountErmRepository accountErmRepository;
 
     @Override
-    public void write(Chunk<? extends AccountVigi> items) throws Exception {
-        accountVigiRepository.saveAll(items);
+    public void write(Chunk<? extends AccountErm> items) throws Exception {
+        accountErmRepository.saveAll(items);
     }
 }
