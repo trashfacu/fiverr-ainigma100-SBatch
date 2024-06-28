@@ -24,7 +24,7 @@ public class CustomerErmItemReader {
         reader.setRepository(customerErmRepository);
         reader.setMethodName("findAll");
         reader.setPageSize(10);
-        reader.setSort(Collections.singletonMap("id", Sort.Direction.ASC));
+        reader.setSort(Collections.singletonMap("accountId", Sort.Direction.ASC));
         return reader;
     }
 }

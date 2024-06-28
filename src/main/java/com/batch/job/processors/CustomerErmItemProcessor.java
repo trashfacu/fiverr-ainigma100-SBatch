@@ -20,10 +20,10 @@ public class CustomerErmItemProcessor implements ItemProcessor<CustomerErmDTO, C
     private final CustomerErmMapper customerErmMapper;
 
     @Override
-    public CustomerErm process(CustomerErmDTO item) throws Exception {
-        if (item.getName() == null || item.getName().isEmpty() || item.getName().toLowerCase().startsWith("c")) {
+    public CustomerErm process(CustomerErmDTO dto) throws Exception {
+        if (dto.getCustomerId() == null || dto.getCustomerId().isEmpty() || dto.getCompanyName().startsWith("c")) {
             throw new InvalidRecordException();
         }
-        return customerErmMapper.toEntity(item, country);
+        return customerErmMapper.toEntity(dto, country);
     }
 }

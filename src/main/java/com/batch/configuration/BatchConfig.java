@@ -44,14 +44,12 @@ public class BatchConfig {
     private final AccountErmItemProcessor accountProcessor;
     private final AccountItemWriter accountWriter;
     private final JobCompletionNotificationListener listener;
-    private final CustomerErmCSVWriter customerVigiCSVWriter;
-    private final AccountErmCSVWriter accountVigiCSVWriter;
+    private final CustomerErmCSVWriter customerErmCSVWriter;
+    private final AccountErmCSVWriter accountErmCSVWriter;
     private final EntityManagerFactory entityManagerFactory;
     private final CSVReaderConfig csvReaderConfig;
     private final CustomSkipListener skipListener;
     private final CustomStepExecutionListener stepExecutionListener;
-    private final StepDecider decider;
-
 
     @Bean
     @StepScope
@@ -97,7 +95,7 @@ public class BatchConfig {
         return new StepBuilder("writeAccountsToCsvStep", jobRepository)
                 .<AccountErm, AccountErm>chunk(10, transactionManager)
                 .reader(csvReaderConfig.accountErmReader(entityManagerFactory))
-                .writer(accountVigiCSVWriter)
+                .writer(accountErmCSVWriter)
                 .faultTolerant()
                 .skip(InvalidRecordException.class)
                 .skipLimit(100).listener(skipListener)
@@ -110,7 +108,7 @@ public class BatchConfig {
         return new StepBuilder("writeCustomersToCsvStep", jobRepository)
                 .<CustomerErm, CustomerErm>chunk(10, transactionManager)
                 .reader(csvReaderConfig.customerErmReader(entityManagerFactory))
-                .writer(customerVigiCSVWriter)
+                .writer(customerErmCSVWriter)
                 .faultTolerant()
                 .skipLimit(100).skip(InvalidRecordException.class)
                 .listener(skipListener)
@@ -126,7 +124,7 @@ public class BatchConfig {
                 .start(decider())
                 .on("fetchAndSaveCustomerStep").to(fetchAndSaveCustomerStep())
                 .next(fetchAndSaveAccountsStep())
-                .next(writeAccountsToCsvStep())
+/*                .next(writeAccountsToCsvStep())
                 .next(writeCustomersToCsvStep())
                 .from(decider())
                 .on("fetchAndSaveAccountsStep").to(fetchAndSaveAccountsStep())
@@ -136,7 +134,7 @@ public class BatchConfig {
                 .on("writeAccountsToCsvStep").to(writeAccountsToCsvStep())
                 .next(writeCustomersToCsvStep())
                 .from(decider())
-                .on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())
+                .on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())*/
                 .end()
                 .build();
     }

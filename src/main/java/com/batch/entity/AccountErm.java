@@ -3,7 +3,6 @@ package com.batch.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,13 +11,13 @@ import java.time.LocalDateTime;
 public class AccountErm {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String interestType;
+    private String interestProperty;
+    private String compoundType;
+    private String interestRateType;
 
     @ManyToOne
-    private CustomerErm customer;
-    private String accountNumber;
-    private BigDecimal balance;
+    private CustomerErm customerErm;
 
     @Transient
     private LocalDateTime executionDate;

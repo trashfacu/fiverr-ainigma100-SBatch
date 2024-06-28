@@ -1,0 +1,28 @@
+{
+  "accounts": [
+    {
+      "id": "ARR12345",
+      "interestProperty": "Monthly Interest",
+      "compoundType": "Simple",
+      "interestType": "Fixed",
+      "interestRateType": "Annual",
+      "extensions": {}
+    },
+    {
+      "id": "ARR54321",
+      "interestProperty": "Quarterly Interest",
+      "compoundType": "Compound",
+      "interestType": "Variable",
+      "interestRateType": "Annual",
+      "extensions": {}
+    },
+    {
+      "id": "ARR67890",
+      "interestProperty": "Credit Card Interest",
+      "compoundType": "NA",
+      "interestType": "Variable",
+      "interestRateType": "Monthly",
+      "extensions": {}
+    }
+  ]
+}

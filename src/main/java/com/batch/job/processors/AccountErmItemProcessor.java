@@ -19,11 +19,14 @@ public class AccountErmItemProcessor implements ItemProcessor<CustomerErm, Accou
     @Override
     public AccountErm process(CustomerErm customer) throws Exception {
         AccountErmDTO accountErmDTO = restTemplate
-                .getForObject("https://jsonplaceholder.typicode.com/users" + customer.getId()
+                .getForObject("http://localhost:3001/accounts/" + customer.getArrangementId()
                         , AccountErmDTO.class);
 
-        AccountErm account = accountErmMapper.toEntity(accountErmDTO);
-        account.setCustomer(customer);
-        return account;
+        if (accountErmDTO != null){
+            AccountErm accountErm = accountErmMapper.toEntity(accountErmDTO);
+            accountErm.setCustomerErm(customer);
+            return accountErm;
+        }
+        return null;
     }
 }

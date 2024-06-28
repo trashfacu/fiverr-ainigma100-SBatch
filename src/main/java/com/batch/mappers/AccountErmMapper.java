@@ -5,14 +5,13 @@ import com.batch.model.AccountErmDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AccountErmMapper {
 
-    @Mapping(source = "dto.accountNumber", target = "accountNumber")
-    @Mapping(source = "dto.balance", target = "balance")
+    @Mapping(source = "dto.interestProperty", target = "interestProperty")
+    @Mapping(source = "dto.compoundType", target = "compoundType")
+    @Mapping(source = "dto.interestType", target = "interestType")
+    @Mapping(source = "dto.interestRateType", target = "interestRateType")
     AccountErm toEntity(AccountErmDTO dto);
 
-    @Mapping(source = "entity.accountNumber", target = "accountNumber")
-    @Mapping(source = "entity.balance", target = "balance")
-    AccountErmDTO toDto(AccountErm entity);
 }

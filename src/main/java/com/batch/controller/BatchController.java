@@ -25,12 +25,15 @@ public class BatchController {
     private final Job processJob;
 
     @PostMapping("/start")
-    public ResponseEntity<String> startBatch(@RequestParam String country, @RequestParam(required = false, defaultValue = "fetchAndSaveCustomerStep") String startStep) {
+    public ResponseEntity<String> startBatch(@RequestParam String country,
+                                             @RequestParam(required = false, defaultValue = "fetchAndSaveCustomerStep") String startStep,
+                                             @RequestParam int pageSize) {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("country", country)
                     .addString("startStep", startStep)
                     .addString("run.id", LocalDateTime.now().toString())
+                    .addString("pageSize", String.valueOf(pageSize))
                     .toJobParameters();
             jobLauncher.run(processJob, jobParameters);
             return new ResponseEntity<>("Job started successfully", HttpStatus.OK);

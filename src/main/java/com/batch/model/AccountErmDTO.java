@@ -2,10 +2,11 @@ package com.batch.model;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
 public class AccountErmDTO {
-    private String accountNumber;
-    private BigDecimal balance;
+
+    private String interestProperty;
+    private String compoundType;
+    private String interestType;
+    private String interestRateType;
 }
