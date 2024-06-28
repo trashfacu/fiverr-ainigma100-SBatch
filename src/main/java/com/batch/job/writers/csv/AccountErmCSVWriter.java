@@ -25,13 +25,13 @@ public class AccountErmCSVWriter implements ItemWriter<AccountErm> {
                 .resource(new FileSystemResource("ERM_OUT_4.csv"))
                 .delimited()
                 .delimiter(",")
-                .names("id", "customerName", "balance", "executionDate")
+                .names("interestType", "customerErm", "executionDate")
                 .lineAggregator(new DelimitedLineAggregator<AccountErm>() {{
                     setFieldExtractor(new BeanWrapperFieldExtractor<>() {{
-                        setNames(new String[]{"id", "customer.name", "balance","executionDate"});
+                        setNames(new String[]{"interestType","customerErm.customerId", "executionDate"});
                     }});
                 }})
-                .headerCallback(w -> w.write("id,customerName,balance,executionDate"))
+                .headerCallback(w -> w.write("interestType,customerErm,executionDate"))
                 .build();
         this.writer.open(new ExecutionContext());
     }

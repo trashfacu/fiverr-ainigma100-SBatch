@@ -1,1 +1,3 @@
-id,customerName,balance,executionDate
+interestType,customerErm,executionDate
+Fixed,CUST1001,2024-06-28T12:11:21.086272800
+Variable,CUST1003,2024-06-28T12:11:21.086272800

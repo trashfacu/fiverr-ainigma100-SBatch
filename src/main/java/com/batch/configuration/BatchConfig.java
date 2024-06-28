@@ -124,7 +124,7 @@ public class BatchConfig {
                 .start(decider())
                 .on("fetchAndSaveCustomerStep").to(fetchAndSaveCustomerStep())
                 .next(fetchAndSaveAccountsStep())
-/*                .next(writeAccountsToCsvStep())
+                .next(writeAccountsToCsvStep())
                 .next(writeCustomersToCsvStep())
                 .from(decider())
                 .on("fetchAndSaveAccountsStep").to(fetchAndSaveAccountsStep())
@@ -134,7 +134,7 @@ public class BatchConfig {
                 .on("writeAccountsToCsvStep").to(writeAccountsToCsvStep())
                 .next(writeCustomersToCsvStep())
                 .from(decider())
-                .on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())*/
+                .on("writeCustomersToCsvStep").to(writeCustomersToCsvStep())
                 .end()
                 .build();
     }
