@@ -21,7 +21,7 @@ public class CustomerErmItemProcessor implements ItemProcessor<CustomerErmDTO, C
 
     @Override
     public CustomerErm process(CustomerErmDTO dto) throws Exception {
-        if (dto.getCustomerId() == null || dto.getCustomerId().isEmpty() || dto.getCompanyName().startsWith("c")) {
+        if (dto.getCustomerId() == null || dto.getCustomerId().isEmpty() || dto.getCompanyName().toLowerCase().startsWith("a")) {
             throw new InvalidRecordException();
         }
         return customerErmMapper.toEntity(dto, country);

@@ -20,9 +20,6 @@ public class CustomerApiReader implements ItemReader<CustomerErmDTO> {
     private Iterator<CustomerErmDTO> currentBatchIterator;
     private int nextPageIndex;
     private int totalPages;
-    @Value("#{jobParameters['pageSize']}")
-    private int pageSize;
-
     public CustomerApiReader(RestTemplate webClient) {
         this.restTemplate = webClient;
         this.nextPageIndex = 1;
@@ -32,7 +29,7 @@ public class CustomerApiReader implements ItemReader<CustomerErmDTO> {
     @Override
     public CustomerErmDTO read() throws Exception {
         if (currentBatchIterator == null || !currentBatchIterator.hasNext()) {
-            if (nextPageIndex < totalPages) {
+            if (nextPageIndex <= totalPages) {
                 fetchCustomerDataFromAPI();
             } else {
                 return null; //there is no more data to read
@@ -42,7 +39,7 @@ public class CustomerApiReader implements ItemReader<CustomerErmDTO> {
     }
 
     private void fetchCustomerDataFromAPI() {
-        String url = "http://localhost:3000/products?_page=" + nextPageIndex + "&_per_page=" + pageSize;
+        String url = "http://localhost:3000/products?_page=" + nextPageIndex;
         ResponseEntity<CustomerApiResponse> response = restTemplate.getForEntity(url, CustomerApiResponse.class);
         CustomerApiResponse apiResponse = response.getBody();
 

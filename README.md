@@ -1,96 +1,64 @@
+[![Github Status][github-shield]][github-url]
+
 # Batch Processing Application
 
-## Table of Contents
+## Pre-requirements
 
-1. [Overview](#overview)
-2. [Components](#components)
-3. [Setup and Usage](#setup-and-usage)
-4. [Monitoring and Troubleshooting](#monitoring-and-troubleshooting)
-5. [Notes](#notes)
++ Maven
++ Java 21
++ H2 Database
 
----
+## Deployment
 
-## Overview <a name="overview"></a>
+```bash
+  mvn clean
+```
+```bash
+  mvn install -DskipTests
+```
 
-This Spring Batch application demonstrates the process of fetching customer data from an API, processing it, and then storing it in a database. Additionally, it includes steps to fetch account data associated with customers, write both customer and account data to CSV files, and handle notifications upon job completion.
+## Endpoints
 
----
+- **POST `/start`**
+- Starts the batch process from a specified step.
+- **Parameters:**
+- `country` (required): The country code for which the batch job should run.
+- `startStep` (optional, default: "fetchAndSaveCustomerStep"): The step name to start execution from.
+- **Example:**
+ ```
+ curl -X POST "http://localhost:8080/start?country=us&startStep=fetchAndSaveCustomerStep"
+ ```
 
-## Components <a name="components"></a>
+- **POST `/onlyFetch`**
+- Initiates a batch job to fetch data from APIs and store it in the database.
+- **Parameters:**
+- `country` (required): The country code for which the batch job should run.
+- **Example:**
+ ```
+ curl -X POST "http://localhost:8080/onlyFetch?country=us"
+ ```
 
-### Entities
+- **POST `/csvGen`**
+- Triggers a batch job to generate CSV files.
+- **Parameters:**
+- `country` (required): The country code for which the batch job should run.
+- **Example:**
+ ```
+ curl -X POST "http://localhost:8080/csvGen?country=us"
+ ```
 
-- **AccountVigi**: Represents an account with attributes such as ID, account number, balance, and a reference to `CustomerVigi`.
-- **CustomerVigi**: Represents a customer with attributes like ID, name, email, and country code.
-- **InvalidRecord**: Represents an invalid record with attributes like recordType, details, and timestamp.
+### Using JsonServer
 
-### DTOs
+You can use JsonServer to simulate APIs for testing purposes, inside resources/mock-data there are two files for that. Here are two examples:
 
-- **AccountVigiDTO**: Data Transfer Object for transferring account-related data.
-- **CustomerVigiDTO**: Data Transfer Object for transferring customer-related data.
+- **db1.json** launched with `json-server --watch db1.json -p 3000`
+- **db2.json** launched with `json-server --watch db2.json -p 3001`
 
-### Readers
+### Notes
 
-- **CustomerApiReader**: Reads customer data from a REST API using `WebClient`.
-- **CustomerVigiItemReader**: Reads customer data from a database using Spring Data `RepositoryItemReader`.
+- Replace `localhost:8080` with the appropriate hostname and port where your application is deployed.
+- Ensure all required parameters (`country`) are provided when making requests to the endpoints.
 
-### Processors
 
-- **AccountVigiItemProcessor**: Processes `CustomerVigi` objects to create `AccountVigi` entities, fetching account data from an API using `WebClient`.
-- **CustomerItemProcessor**: Processes `CustomerVigiDTO` objects to create `CustomerVigi` entities.
-
-### Writers
-
-- **AccountItemWriter**: Writes `AccountVigi` entities to the database.
-- **CustomerItemWriter**: Writes `CustomerVigi` entities to the database.
-- **CSV Writers**: Writes `AccountVigi` and `CustomerVigi` entities respectively to CSV files (`AccountVigiCSVWriter`, `CustomerVigiCSVWriter`).
-
-### Repositories
-
-- **AccountVigiRepository**: Spring Data repository for `AccountVigi` entities.
-- **CustomerVigiRepository**: Spring Data repository for `CustomerVigi` entities.
-- **InvalidRecordRepository**: Spring Data repository for `InvalidRecord` entities.
-
-### Configuration
-
-- **BatchConfig**: Configures Spring Batch jobs and steps. Includes item readers, processors, writers, and listeners (`JobCompletionNotificationListener`, `CustomSkipListener`, `CustomStepExecutionListener`).
-- **CSVReaderConfig**: Configures Spring Batch item readers for reading `AccountVigi` and `CustomerVigi` entities from the database.
-- **StepDecider**: Decides which step to start based on job parameters.
-
-### Controllers
-
-- **BatchController**: REST controller to trigger the batch job with parameters.
-
----
-
-## Setup and Usage <a name="setup-and-usage"></a>
-
-### Prerequisites
-
-- Java and Maven installed.
-- Database configured in `application.properties` or `application.yml`.
-
-### Running the Application
-
-1. Clone the repository and import it into your IDE.
-2. Build and run the Spring Boot application.
-3. Use a tool like Postman or cURL to send a POST request to start the batch job.
-
-### Interacting with the Application
-
-#### Starting a Batch Job
-
-Send a POST request to `/start` endpoint with the following parameters:
-- `country`: Specify the country for filtering customer data.
-- `startStep` (optional): Specify the initial step to start the job.
-
-Example using Postman:
-- **URL**: `http://localhost:8080/start`
-- **Method**: POST
-- **Headers**: Content-Type: application/json
-- **Body**: Raw JSON
-  ```json
-  {
-    "country": "US",
-    "startStep": "fetchAndSaveCustomerStep"
-  }
+[github-shield]: https://img.shields.io/badge/GitHub-trashfacu-blue?logo=github&style=flat
+[github-url]: https://github.com/trashfacu/RantMyGameAPI

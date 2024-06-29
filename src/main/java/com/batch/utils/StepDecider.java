@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class StepDecider implements JobExecutionDecider {
-
     @Override
     public FlowExecutionStatus decide(JobExecution jobExecution, StepExecution stepExecution) {
         String startStep = jobExecution.getJobParameters().getString("startStep");

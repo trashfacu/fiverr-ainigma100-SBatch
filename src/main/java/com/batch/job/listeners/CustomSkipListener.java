@@ -19,27 +19,42 @@ public class CustomSkipListener implements SkipListener<Object, Object> {
 
     @Override
     public void onSkipInRead(Throwable t) {
-        log.error("Skipped item during read due to: {}", t.getMessage());
+        log.error("Skipped item during read due to: {}", t.getMessage(), t); // Log stack trace for detailed debugging
     }
 
     @Override
     public void onSkipInWrite(Object item, Throwable t) {
-        log.error("Skipped item during write: {}", item);
+        log.error("Skipped item during write: {}", item, t);  // Log stack trace
     }
 
     @Override
     public void onSkipInProcess(Object item, Throwable t) {
         InvalidRecord invalidRecord = new InvalidRecord();
         invalidRecord.setRecordType(item.getClass().getSimpleName());
-        invalidRecord.setDetails(item.toString());
+
+        // Use a safer truncation strategy for details
+        String details = item.toString();
+        int maxDetailsLength = 255;
+        if (details.length() > maxDetailsLength) {
+            details = details.substring(0, maxDetailsLength - 3) + "...";
+        }
+        invalidRecord.setDetails(details);
+
         invalidRecord.setTimeStamp(LocalDateTime.now());
         invalidRecord.setExceptionType(t.getClass().getSimpleName());
-        invalidRecord.setExceptionMessage("Skipped due to name starting with c");
+
+        // Capture the full exception message
+        invalidRecord.setExceptionMessage(t.getMessage());
+
         invalidRecord.setStepName(getStepName());
+
+        log.error("Skipped item in step '{}' due to {}: {}",
+                invalidRecord.getStepName(), t.getClass().getSimpleName(), t.getMessage());
+
         invalidRecordRepository.save(invalidRecord);
     }
 
-    // Helper method to get the current step name from the contextx
+
     private String getStepName() {
         return StepSynchronizationManager.getContext() != null ? StepSynchronizationManager.getContext().getStepName() : "Unknown Step";
     }

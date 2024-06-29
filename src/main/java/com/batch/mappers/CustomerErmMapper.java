@@ -1,6 +1,7 @@
 package com.batch.mappers;
 
 import com.batch.entity.CustomerErm;
+import com.batch.entity.out.CustomerErmOut;
 import com.batch.model.CustomerErmDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -50,5 +51,7 @@ public interface CustomerErmMapper {
     @Mapping(source = "dto.extAccountNumber", target = "extAccountNumber")
     @Mapping(source = "countryCode", target = "countryCode")
     CustomerErm toEntity(CustomerErmDTO dto, String countryCode);
+
+    CustomerErmOut toCustomerErmOut(CustomerErm customerErm);
 
 }
