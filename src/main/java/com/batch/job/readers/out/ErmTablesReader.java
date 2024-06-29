@@ -1,4 +1,4 @@
-package com.batch.configuration;
+package com.batch.job.readers.out;
 
 import com.batch.entity.AccountErm;
 import com.batch.entity.CustomerErm;
@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
-public class CSVReaderConfig {
+public class OutErmReader {
 
     @Bean
     public ItemReader<CustomerErm> customerErmReader(EntityManagerFactory entityManagerFactory) {
