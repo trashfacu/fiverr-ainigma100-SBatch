@@ -1,7 +1,7 @@
 package com.batch.job.processors;
 
 import com.batch.entity.CustomerErm;
-import com.batch.job.exceptions.InvalidRecordException;
+import com.batch.exceptions.InvalidRecordException;
 import com.batch.mappers.CustomerErmMapper;
 import com.batch.model.CustomerErmDTO;
 import lombok.RequiredArgsConstructor;

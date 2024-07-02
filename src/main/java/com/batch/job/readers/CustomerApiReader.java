@@ -1,6 +1,6 @@
 package com.batch.job.readers;
 
-import com.batch.job.exceptions.ApiDataFetchException;
+import com.batch.exceptions.ApiDataFetchException;
 import com.batch.model.CustomerApiResponse;
 import com.batch.model.CustomerErmDTO;
 import lombok.extern.slf4j.Slf4j;
