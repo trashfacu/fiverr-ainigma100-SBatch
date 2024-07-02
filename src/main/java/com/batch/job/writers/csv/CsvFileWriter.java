@@ -18,8 +18,12 @@ public class CsvFileWriter {
                 .resource(new FileSystemResource("output/erm_out_5.csv"))
                 .delimited()
                 .delimiter(",")
-                .names("customerErmOutId", "productLineName", "arrangementId", "productGroupName", "productDescription",
-                        "accountId", "currencyId", "accountIBAN", "openingDate", "companyName", "customerReference", "executionDate")
+                .names("customerErmOutId", "arrangementId", "productLineName", "productGroupId", "productGroupName",
+                        "productDescription", "shortTitle", "categoryId", "companyCode",
+                        "sortCode", "executionDate")
+                .headerCallback(writer -> writer.write("customerErmOutId,arrangementId,productLineName,productGroupId,productGroupName," +
+                        "productDescription,shortTitle,categoryId,companyCode,sortCode,executionDate"))
+                .shouldDeleteIfExists(true)
                 .build();
     }
 
@@ -31,6 +35,8 @@ public class CsvFileWriter {
                 .delimited()
                 .delimiter(",")
                 .names("accountErmOutId", "interestType", "customerErm", "executionDate")
+                .headerCallback(writer -> writer.write("accountErmOutId,interestType,customerErm,executionDate"))
+                .shouldDeleteIfExists(true)
                 .build();
     }
 

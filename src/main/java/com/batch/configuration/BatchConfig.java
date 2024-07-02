@@ -4,7 +4,8 @@ import com.batch.entity.AccountErm;
 import com.batch.entity.CustomerErm;
 import com.batch.entity.out.AccountErmOut;
 import com.batch.entity.out.CustomerErmOut;
-import com.batch.exceptions.InvalidRecordException;
+import com.batch.job.exceptions.ApiDataFetchException;
+import com.batch.job.exceptions.InvalidRecordException;
 import com.batch.job.listeners.CustomSkipListener;
 import com.batch.job.listeners.CustomStepExecutionListener;
 import com.batch.job.listeners.JobCompletionNotificationListener;
@@ -13,8 +14,8 @@ import com.batch.job.processors.CustomerErmItemProcessor;
 import com.batch.job.processors.out.AccountToErmOut4Processor;
 import com.batch.job.processors.out.CustomerToErmOut5Processor;
 import com.batch.job.readers.CustomerApiReader;
-import com.batch.job.readers.CustomerErmItemReader;
 import com.batch.job.readers.out.ErmTablesReader;
+import com.batch.job.readers.out.OutErmReader;
 import com.batch.job.writers.AccountItemWriter;
 import com.batch.job.writers.CustomerItemWriter;
 import com.batch.job.writers.csv.CsvFileWriter;
@@ -26,13 +27,11 @@ import jakarta.persistence.EntityManagerFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.data.RepositoryItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -46,26 +45,20 @@ public class BatchConfig {
     private final CustomerApiReader customerApiReader;
     private final CustomerErmItemProcessor customerProcessor;
     private final CustomerItemWriter customerWriter;
-    private final CustomerErmItemReader customerItemReader;
     private final AccountErmItemProcessor accountProcessor;
     private final AccountItemWriter accountWriter;
     private final JobCompletionNotificationListener listener;
     private final CsvFileWriter csvFileWriter;
     private final EntityManagerFactory entityManagerFactory;
-    private final ErmTablesReader outErmReader;
+    private final ErmTablesReader ermTablesReader;
     private final CustomSkipListener skipListener;
     private final CustomStepExecutionListener stepExecutionListener;
     //OUT
+    private final OutErmReader outErmReader;
     private final AccountToErmOut4Processor accountToErmOut4Processor;
     private final CustomerToErmOut5Processor customerToErmOut5Processor;
     private final AccountErmOutWriter accountErmOutWriter;
     private final CustomerErmOutWriter customerErmOutWriter;
-
-    @Bean
-    @StepScope
-    public RepositoryItemReader<CustomerErm> customerItemReaderImp() {
-        return customerItemReader.customerItemReader();
-    }
 
     @Bean
     public JobExecutionDecider decider() {
@@ -81,6 +74,7 @@ public class BatchConfig {
                 .writer(customerWriter)
                 .faultTolerant()
                 .skip(InvalidRecordException.class)
+                .skip(ApiDataFetchException.class)
                 .skipLimit(100).listener(skipListener)
                 .listener(stepExecutionListener)
                 .build();
@@ -90,11 +84,12 @@ public class BatchConfig {
     public Step fetchAndSaveAccountsStep() {
         return new StepBuilder("fetchAndSaveAccountsStep", jobRepository)
                 .<CustomerErm, AccountErm>chunk(10, transactionManager)
-                .reader(customerItemReaderImp())
+                .reader(ermTablesReader.customerErmReader(entityManagerFactory))
                 .processor(accountProcessor)
                 .writer(accountWriter)
                 .faultTolerant()
                 .skip(InvalidRecordException.class)
+                .skip(ApiDataFetchException.class)
                 .skipLimit(100).listener(skipListener)
                 .listener(stepExecutionListener)
                 .build();
@@ -104,7 +99,7 @@ public class BatchConfig {
     public Step writeAccountOutTablesToDb() {
         return new StepBuilder("step-WriteAccountOutTablesToDb", jobRepository)
                 .<AccountErm, AccountErmOut>chunk(10, transactionManager)
-                .reader(outErmReader.accountErmReader(entityManagerFactory))
+                .reader(ermTablesReader.accountErmReader(entityManagerFactory))
                 .processor(accountToErmOut4Processor)
                 .writer(accountErmOutWriter)
                 .listener(stepExecutionListener)
@@ -115,7 +110,7 @@ public class BatchConfig {
     public Step writeCustomerOutTablesToDb() {
         return new StepBuilder("step-WriteCustomerOutTablesToDb", jobRepository)
                 .<CustomerErm, CustomerErmOut>chunk(10, transactionManager)
-                .reader(outErmReader.customerErmReader(entityManagerFactory))
+                .reader(ermTablesReader.customerErmReader(entityManagerFactory))
                 .processor(customerToErmOut5Processor)
                 .writer(customerErmOutWriter)
                 .listener(stepExecutionListener)
@@ -125,9 +120,8 @@ public class BatchConfig {
     @Bean
     public Step writeAccountsToCsvStep() {
         return new StepBuilder("step-writeAccountsToCsvStep", jobRepository)
-                .<AccountErm, AccountErmOut>chunk(10, transactionManager)
-                .reader(outErmReader.accountErmReader(entityManagerFactory))
-                .processor(accountToErmOut4Processor)
+                .<AccountErmOut, AccountErmOut>chunk(10, transactionManager)
+                .reader(outErmReader.accountErmOutReader(entityManagerFactory))
                 .writer(csvFileWriter.accountErmOutCsvWriter())
                 .listener(stepExecutionListener)
                 .build();
@@ -136,9 +130,8 @@ public class BatchConfig {
     @Bean
     public Step writeCustomersToCsvStep() {
         return new StepBuilder("step-writeCustomersToCsvStep", jobRepository)
-                .<CustomerErm, CustomerErmOut>chunk(10, transactionManager)
-                .reader(outErmReader.customerErmReader(entityManagerFactory))
-                .processor(customerToErmOut5Processor)
+                .<CustomerErmOut, CustomerErmOut>chunk(10, transactionManager)
+                .reader(outErmReader.customerErmOutReader(entityManagerFactory))
                 .writer(csvFileWriter.customerErmOutCsvWriter())
                 .faultTolerant()
                 .listener(stepExecutionListener)
@@ -153,10 +146,14 @@ public class BatchConfig {
                 .start(decider())
                 .on("fetchAndSaveCustomerStep").to(fetchAndSaveCustomerStep())
                 .next(fetchAndSaveAccountsStep())
+                .next(writeCustomerOutTablesToDb())
+                .next(writeAccountOutTablesToDb())
                 .next(writeAccountsToCsvStep())
                 .next(writeCustomersToCsvStep())
                 .from(decider())
                 .on("fetchAndSaveAccountsStep").to(fetchAndSaveAccountsStep())
+                .next(writeCustomerOutTablesToDb())
+                .next(writeAccountOutTablesToDb())
                 .next(writeAccountsToCsvStep())
                 .next(writeCustomersToCsvStep())
                 .from(decider())

@@ -1,4 +1,4 @@
-package com.batch.exceptions;
+package com.batch.job.exceptions;
 
 public class InvalidRecordException extends RuntimeException {
 

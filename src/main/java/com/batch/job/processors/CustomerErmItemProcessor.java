@@ -1,7 +1,7 @@
 package com.batch.job.processors;
 
 import com.batch.entity.CustomerErm;
-import com.batch.exceptions.InvalidRecordException;
+import com.batch.job.exceptions.InvalidRecordException;
 import com.batch.mappers.CustomerErmMapper;
 import com.batch.model.CustomerErmDTO;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ public class CustomerErmItemProcessor implements ItemProcessor<CustomerErmDTO, C
 
     @Override
     public CustomerErm process(CustomerErmDTO dto) throws Exception {
-        if (dto.getCustomerId() == null || dto.getCustomerId().isEmpty() || dto.getCompanyName().toLowerCase().startsWith("a")) {
+        if (dto.getCustomerId() == null || dto.getCustomerId().isEmpty() || dto.getCompanyName().toLowerCase().startsWith("facu")) {
             throw new InvalidRecordException();
         }
         return customerErmMapper.toEntity(dto, country);

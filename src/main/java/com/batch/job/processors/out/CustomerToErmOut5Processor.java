@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class CustomerToErmOut5Processor implements ItemProcessor<CustomerErm, CustomerErmOut> {
@@ -15,7 +17,9 @@ public class CustomerToErmOut5Processor implements ItemProcessor<CustomerErm, Cu
 
     @Override
     public CustomerErmOut process(CustomerErm item) throws Exception {
-        return mapper.toCustomerErmOut(item);
+        CustomerErmOut customerErmOut = mapper.toCustomerErmOut(item);
+        customerErmOut.setExecutionDate(LocalDateTime.now());
+        return customerErmOut;
     }
 
 }

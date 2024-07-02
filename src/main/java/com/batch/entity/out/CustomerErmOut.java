@@ -15,17 +15,16 @@ public class CustomerErmOut {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long customerErmOutId;
 
-    private String productLineName;
+    private String customerId;
     private String arrangementId;
+    private String productLineName;
+    private String productGroupId;
     private String productGroupName;
     private String productDescription;
-    private String accountId;
-    private String currencyId;
-    private String accountIBAN;
-    private LocalDateTime openingDate;
-    private String companyName;
-    private String customerReference;
+    private String shortTitle;
+    private String categoryId;
+    private String companyCode;
+    private String sortCode;
     private LocalDateTime executionDate;
 
 }
-

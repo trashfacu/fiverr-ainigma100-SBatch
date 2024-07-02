@@ -7,8 +7,6 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 @RequiredArgsConstructor
 public class CustomerErmOutWriter implements ItemWriter<CustomerErmOut> {
@@ -17,9 +15,6 @@ public class CustomerErmOutWriter implements ItemWriter<CustomerErmOut> {
 
     @Override
     public void write(Chunk<? extends CustomerErmOut> chunk) throws Exception {
-        for (CustomerErmOut item : chunk) {
-            item.setExecutionDate(LocalDateTime.now());
-        }
         ermOutRepository.saveAll(chunk);
     }
 }
