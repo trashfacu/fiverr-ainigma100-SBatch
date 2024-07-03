@@ -1,4 +1,4 @@
 customerErmOutId,arrangementId,productLineName,productGroupId,productGroupName,productDescription,shortTitle,categoryId,companyCode,sortCode,executionDate
-1,ARR12345,Savings Account,PG100,Savings,High Interest Savings Account,HISA,CAT100,CC001,SC12345,2024-07-02T02:14:10.535755
-2,ARR54321,Checking Account,PG200,Checking,Regular Checking Account,CHK,CAT200,CC002,SC54321,2024-07-02T02:14:10.535755
-3,ARR67890,Credit Card,PG300,Credit,Platinum Credit Card,PLAT,CAT300,CC003,SC67890,2024-07-02T02:14:10.535755
+1,ARR12345,Savings Account,PG100,Savings,High Interest Savings Account,HISA,CAT100,CC001,SC12345,2024-07-03T19:29:33.307944
+2,ARR54321,Checking Account,PG200,Checking,Regular Checking Account,CHK,CAT200,CC002,SC54321,2024-07-03T19:29:33.307944
+3,ARR67890,Credit Card,PG300,Credit,Platinum Credit Card,PLAT,CAT300,CC003,SC67890,2024-07-03T19:29:33.307944

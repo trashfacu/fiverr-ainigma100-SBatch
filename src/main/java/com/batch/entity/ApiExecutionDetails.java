@@ -15,39 +15,30 @@ public class ApiExecutionDetails {
     @Column(name = "ID")
     private Long id;
 
-    // URL of the request
-    @Column(name = "requestUrl")
+    @Column(name = "REQUEST_URL")
     private String requestUrl;
 
-    // Query parameters
-    @Column(name = "queryParameters")
+    @Column(name = "QUERY_PARAMETERS")
     private String queryParameters;
 
-    // Path variables
-    @Column(name = "pathVariables")
+    @Column(name = "PATH_VARIABLES")
     private String pathVariables;
 
-    // Request headers
-    @Column(name = "requestHeaders")
+    @Column(name = "REQUEST_HEADERS")
     private String requestHeaders;
 
-    // HTTP status code of the response
-    @Column(name = "responseHttpStatusCode")
+    @Column(name = "RESPONSE_HTTP_STATUS_CODE")
     private String responseHttpStatusCode;
 
-    // Exception message, if any
-    @Column(name = "exceptionMessage")
+    @Column(name = "EXCEPTION_MESSAGE")
     private String exceptionMessage;
 
-    // Start time of the request
-    @Column(name = "startExecDate")
+    @Column(name = "START_EXEC_DATE")
     private LocalDateTime startExecDate;
 
-    // End time of the request
-    @Column(name = "endExecDate")
+    @Column(name = "END_EXEC_DATE")
     private LocalDateTime endExecDate;
 
-    // Duration of the request
-    @Column(name = "durationExec")
+    @Column(name = "DURATION_EXEC")
     private Long durationExec;
 }

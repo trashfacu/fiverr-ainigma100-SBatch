@@ -9,14 +9,12 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-public class ApiExecutionLogger {
+public class ApiExecutionListener {
 
     private final ApiExecutionDetailsRepository repository;
 
-    public void logApiExecution(String requestUrl, String queryParameters, String pathVariables,
-                                String requestHeaders, String responseHttpStatusCode, String exceptionMessage,
-                                LocalDateTime startExecDate, LocalDateTime endExecDate) {
-
+    public void logExecutionDetails(String requestUrl, String queryParameters, String pathVariables, String requestHeaders,
+                                    String responseHttpStatusCode, String exceptionMessage, LocalDateTime startExecDate, LocalDateTime endExecDate) {
         ApiExecutionDetails details = new ApiExecutionDetails();
         details.setRequestUrl(requestUrl);
         details.setQueryParameters(queryParameters);
