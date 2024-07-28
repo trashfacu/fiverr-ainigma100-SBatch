@@ -24,7 +24,7 @@ public class CustomerApiReader implements ItemReader<CustomerErmDTO> {
     private final RestClient restClient;
     private final ApiExecutionListener apiExecutionListener;
     private Iterator<CustomerErmDTO> currentBatchIterator;
-    private int nextPageIndex;
+    int nextPageIndex;
     private int totalPages;
 
     public CustomerApiReader(RestClient restClient, ApiExecutionListener apiExecutionListener) {
