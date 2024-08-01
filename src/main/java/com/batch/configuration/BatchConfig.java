@@ -176,7 +176,7 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job onlyFetchDataFromOutTablesAndGenerateCsv() {
+    public Job processOnlyFetchDataFromOutTablesAndGenerateCsv() {
         return new JobBuilder("job-OnlyFetchDataFromOutTablesAndGenerateCsv", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)

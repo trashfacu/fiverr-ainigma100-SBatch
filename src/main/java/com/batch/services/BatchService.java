@@ -16,7 +16,7 @@ public class BatchService {
 
     private final JobLauncher jobLauncher;
     private final Job processJobFromStartToEndWithStartDecision;
-    private final Job onlyFetchDataFromOutTablesAndGenerateCsv;
+    private final Job processOnlyFetchDataFromOutTablesAndGenerateCsv;
     private final Job processJobOnlyFetchApiToDb;
 
     @Async
@@ -44,7 +44,7 @@ public class BatchService {
                 .addString("country", country)
                 .addString("run.id", LocalDateTime.now().toString())
                 .toJobParameters();
-        jobLauncher.run(onlyFetchDataFromOutTablesAndGenerateCsv, jobParameters);
+        jobLauncher.run(processOnlyFetchDataFromOutTablesAndGenerateCsv, jobParameters);
     }
 
 
